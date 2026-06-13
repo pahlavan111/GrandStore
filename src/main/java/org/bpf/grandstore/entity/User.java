@@ -11,6 +11,7 @@ public class User {
     private Long id;
 
     private String name;
+    private String lastName;
 
     protected User() {
     }
@@ -25,5 +26,13 @@ public class User {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 }
