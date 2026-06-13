@@ -12,22 +12,18 @@ public class User {
 
     private String name;
 
-    public User() {
+    protected User() {
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public Long getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public Long id() {
-        return id;
-    }
-
-    public String name() {
-        return name;
     }
 }
