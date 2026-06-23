@@ -1,5 +1,6 @@
 package org.bpf.grandstore.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -36,6 +37,7 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST,  CascadeType.REMOVE},orphanRemoval = true)
     @Builder.Default
+    @JsonIgnore
     private List<Address> addresses = new ArrayList<>();
 
 
@@ -46,9 +48,11 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "product_id")
     )
     @Builder.Default
+    @JsonIgnore
     private Set<Product> favoriteProducts = new HashSet<>();
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE)
+    @JsonIgnore
     private Profile profile;
 
     public void addAddress(Address address) {
