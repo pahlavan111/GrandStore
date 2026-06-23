@@ -2,6 +2,7 @@ package org.bpf.grandstore.controller;
 
 import lombok.AllArgsConstructor;
 import org.bpf.grandstore.dto.UserDto;
+import org.bpf.grandstore.mapper.UserMapper;
 import org.bpf.grandstore.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,13 +18,14 @@ import java.util.List;
 public class UserController {
 
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     @GetMapping
     public List<UserDto> getUsers() {
         return userRepository.findAll()
                 .stream()
                 .map(
-                        u -> new UserDto(u.getId(), u.getName(), u.getLastName(), u.getEmail())
+                        userMapper::toDto
                 )
                 .toList();
     }
@@ -36,8 +38,7 @@ public class UserController {
         if (user == null) {
             return ResponseEntity.notFound().build();
         }
-
-        var userDto = new UserDto(user.getId(), user.getName(), user.getLastName(), user.getEmail());
-        return ResponseEntity.ok(userDto);
+//        var userDto = new UserDto(user.getId(), user.getName(), user.getLastName(), user.getEmail());
+        return ResponseEntity.ok(userMapper.toDto(user));
     }
 }
