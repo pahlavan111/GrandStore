@@ -4,13 +4,12 @@ import lombok.AllArgsConstructor;
 import org.bpf.grandstore.dto.UserDto;
 import org.bpf.grandstore.mapper.UserMapper;
 import org.bpf.grandstore.repository.UserRepository;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @AllArgsConstructor
 @RestController
@@ -21,8 +20,14 @@ public class UserController {
     private final UserMapper userMapper;
 
     @GetMapping
-    public List<UserDto> getUsers() {
-        return userRepository.findAll()
+    public List<UserDto> getUsers(
+            @RequestParam(required = false, defaultValue = "", name = "sort") String sortBy
+    ) {
+
+        if (!Set.of("name", "email").contains(sortBy))
+            sortBy = "name";
+
+        return userRepository.findAll(Sort.by(sortBy))
                 .stream()
                 .map(
                         userMapper::toDto

@@ -51,9 +51,9 @@ public class User {
     @JsonIgnore
     private Set<Product> favoriteProducts = new HashSet<>();
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE)
-    @JsonIgnore
-    private Profile profile;
+//    @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE)
+//    @JsonIgnore
+//    private Profile profile;
 
     public void addAddress(Address address) {
         addresses.add(address);
