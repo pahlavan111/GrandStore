@@ -1,6 +1,7 @@
 package org.bpf.grandstore.controller;
 
 import lombok.AllArgsConstructor;
+import org.bpf.grandstore.dto.UpdateUserRequest;
 import org.bpf.grandstore.dto.UserDto;
 import org.bpf.grandstore.dto.UserDtoRequest;
 import org.bpf.grandstore.entity.User;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.lang.model.element.Name;
 import java.util.List;
 import java.util.Set;
 
@@ -61,5 +63,19 @@ public class UserController {
         var uri = uriBuilder.path("/users/{id}").buildAndExpand(userDto.getId()).toUri();
 
         return ResponseEntity.created(uri).body(userDto);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<UserDto> updateUser(@PathVariable(name = "id") Long userId, @RequestBody UpdateUserRequest request){
+
+        User user = userRepository.findById(userId).orElse(null);
+
+        if (user == null){
+            return ResponseEntity.notFound().build();
+        }
+
+        userMapper.update(request, user);
+        userRepository.save(user);
+        return ResponseEntity.ok(userMapper.toDto(user));
     }
 }
