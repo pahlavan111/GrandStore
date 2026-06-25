@@ -2,11 +2,14 @@ package org.bpf.grandstore.controller;
 
 import lombok.AllArgsConstructor;
 import org.bpf.grandstore.dto.UserDto;
+import org.bpf.grandstore.dto.UserDtoRequest;
+import org.bpf.grandstore.entity.User;
 import org.bpf.grandstore.mapper.UserMapper;
 import org.bpf.grandstore.repository.UserRepository;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 import java.util.Set;
@@ -43,7 +46,20 @@ public class UserController {
         if (user == null) {
             return ResponseEntity.notFound().build();
         }
-//        var userDto = new UserDto(user.getId(), user.getName(), user.getLastName(), user.getEmail());
         return ResponseEntity.ok(userMapper.toDto(user));
+    }
+
+    @PostMapping("/create")
+    public ResponseEntity<UserDto> createUser(
+            @RequestBody UserDtoRequest request,
+            UriComponentsBuilder uriBuilder
+    ) {
+        User user = userMapper.toEntity(request);
+        userRepository.save(user);
+
+        UserDto userDto = userMapper.toDto(user);
+        var uri = uriBuilder.path("/users/{id}").buildAndExpand(userDto.getId()).toUri();
+
+        return ResponseEntity.created(uri).body(userDto);
     }
 }
