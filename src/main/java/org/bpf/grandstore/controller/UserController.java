@@ -1,6 +1,7 @@
 package org.bpf.grandstore.controller;
 
 import lombok.AllArgsConstructor;
+import org.bpf.grandstore.dto.ChangePasswordRequest;
 import org.bpf.grandstore.dto.UpdateUserRequest;
 import org.bpf.grandstore.dto.UserDto;
 import org.bpf.grandstore.dto.UserDtoRequest;
@@ -8,12 +9,13 @@ import org.bpf.grandstore.entity.User;
 import org.bpf.grandstore.mapper.UserMapper;
 import org.bpf.grandstore.repository.UserRepository;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.lang.model.element.Name;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 @AllArgsConstructor
@@ -66,11 +68,11 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserDto> updateUser(@PathVariable(name = "id") Long userId, @RequestBody UpdateUserRequest request){
+    public ResponseEntity<UserDto> updateUser(@PathVariable(name = "id") Long userId, @RequestBody UpdateUserRequest request) {
 
         User user = userRepository.findById(userId).orElse(null);
 
-        if (user == null){
+        if (user == null) {
             return ResponseEntity.notFound().build();
         }
 
@@ -80,15 +82,37 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> updateUser(@PathVariable(name = "id") Long userId){
+    public ResponseEntity<Void> updateUser(@PathVariable(name = "id") Long userId) {
 
         User user = userRepository.findById(userId).orElse(null);
 
-        if (user == null){
+        if (user == null) {
             return ResponseEntity.notFound().build();
         }
 
         userRepository.deleteById(userId);
+        return ResponseEntity.noContent().build();
+    }
+
+
+    @PostMapping("/{id}/change-password")
+    public ResponseEntity<Void> updateUser(
+            @PathVariable(name = "id") Long userId,
+            @RequestBody ChangePasswordRequest request
+    ) {
+
+        User user = userRepository.findById(userId).orElse(null);
+
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (!Objects.equals(request.getOldPassword(), user.getPassword())) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        user.setPassword(request.getNewPassword());
+        userRepository.save(user);
         return ResponseEntity.noContent().build();
     }
 }
