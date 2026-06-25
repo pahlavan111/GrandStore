@@ -78,4 +78,17 @@ public class UserController {
         userRepository.save(user);
         return ResponseEntity.ok(userMapper.toDto(user));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> updateUser(@PathVariable(name = "id") Long userId){
+
+        User user = userRepository.findById(userId).orElse(null);
+
+        if (user == null){
+            return ResponseEntity.notFound().build();
+        }
+
+        userRepository.deleteById(userId);
+        return ResponseEntity.noContent().build();
+    }
 }
