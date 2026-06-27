@@ -1,5 +1,6 @@
 package org.bpf.grandstore.controller;
 
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.bpf.grandstore.dto.ChangePasswordRequest;
 import org.bpf.grandstore.dto.UpdateUserRequest;
@@ -11,12 +12,11 @@ import org.bpf.grandstore.repository.UserRepository;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @AllArgsConstructor
 @RestController
@@ -55,7 +55,7 @@ public class UserController {
 
     @PostMapping("/create")
     public ResponseEntity<UserDto> createUser(
-            @RequestBody UserDtoRequest request,
+            @Valid @RequestBody UserDtoRequest request,
             UriComponentsBuilder uriBuilder
     ) {
         User user = userMapper.toEntity(request);
@@ -114,5 +114,17 @@ public class UserController {
         user.setPassword(request.getNewPassword());
         userRepository.save(user);
         return ResponseEntity.noContent().build();
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleValidationError(
+            MethodArgumentNotValidException exception
+    ){
+        var errors = new HashMap<String, String>();
+        exception.getBindingResult().getFieldErrors().forEach( error ->
+                errors.put(error.getField(), error.getDefaultMessage())
+        );
+
+        return ResponseEntity.badRequest().body(errors);
     }
 }
