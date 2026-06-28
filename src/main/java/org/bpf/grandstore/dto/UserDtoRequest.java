@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import org.bpf.grandstore.validation.Lowercase;
 
 @Data
 public class UserDtoRequest {
@@ -22,5 +23,6 @@ public class UserDtoRequest {
 
     @Email(message = "Email must be valid")
     @NotBlank(message = "Email is required")
+    @Lowercase
     private String email;
 }
