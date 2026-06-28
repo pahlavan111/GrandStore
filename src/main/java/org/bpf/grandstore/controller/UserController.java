@@ -12,11 +12,13 @@ import org.bpf.grandstore.repository.UserRepository;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 @AllArgsConstructor
 @RestController
@@ -54,10 +56,13 @@ public class UserController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<UserDto> createUser(
+    public ResponseEntity<?> createUser(
             @Valid @RequestBody UserDtoRequest request,
             UriComponentsBuilder uriBuilder
     ) {
+        if (userRepository.existsUserByEmail(request.getEmail()))
+            return ResponseEntity.badRequest().body(Map.of("email", "Email is already registered"));
+
         User user = userMapper.toEntity(request);
         userRepository.save(user);
 
