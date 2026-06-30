@@ -1,9 +1,7 @@
 package org.bpf.grandstore.dto;
 
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.bpf.grandstore.entity.CartItem;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -19,4 +17,3 @@ public class CartDto {
 
     private BigDecimal totalPrice = BigDecimal.ZERO;
 }
-
