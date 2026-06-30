@@ -28,7 +28,7 @@ class CartController {
     private final CartMapper cartMapper;
 
     @PostMapping
-    private ResponseEntity<CartDto> createCart(
+    public ResponseEntity<CartDto> createCart(
             UriComponentsBuilder uriBuilder
     ) {
         var cart = new Cart();
@@ -40,6 +40,17 @@ class CartController {
         return ResponseEntity.created(uri).body(cartDto);
     }
 
+    @GetMapping("/{cartId}")
+    public ResponseEntity<CartDto> getCart(
+            @PathVariable UUID cartId
+    ) {
+        System.out.println("repo = " + cartRepository);
+        var cart = cartRepository.getCartWithItems(cartId).orElse(null);
+        if (cart == null) return ResponseEntity.notFound().build();
+
+        return ResponseEntity.ok(cartMapper.toDto(cart));
+    }
+
     @Transactional
     @PostMapping("/{cartId}/items")
     public ResponseEntity<CartItemDto> addToCart(
@@ -47,7 +58,7 @@ class CartController {
             @Valid @RequestBody AddItemToCartRequest request
     ) {
 
-        var cart = cartRepository.findById(cartId).orElse(null);
+        var cart = cartRepository.getCartWithItems(cartId).orElse(null);
         if (cart == null) {
             return ResponseEntity.notFound().build();
         }

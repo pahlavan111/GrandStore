@@ -4,9 +4,7 @@ package org.bpf.grandstore.dto;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Data
 public class CartDto {
