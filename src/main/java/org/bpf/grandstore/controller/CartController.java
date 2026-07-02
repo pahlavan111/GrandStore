@@ -70,21 +70,7 @@ class CartController {
             return ResponseEntity.badRequest().build();
         }
 
-        var cartItem = cart.getCartItems().stream().filter(item ->
-                        item.getProduct().getId().equals(request.getProductId())
-                ).findFirst()
-                .orElse(null);
-
-        if (cartItem != null) {
-            cartItem.setQuantity(cartItem.getQuantity() + 1);
-
-        } else {
-            cartItem = new CartItem();
-            cartItem.setProduct(product);
-            cartItem.setQuantity(1);
-            cartItem.setCart(cart);
-            cart.getCartItems().add(cartItem);
-        }
+        var cartItem = cart.addToCart(product);
 
         cartRepository.save(cart);
 
@@ -107,10 +93,7 @@ class CartController {
             );
         }
 
-        var cartItem = cart.getCartItems().stream().filter(item ->
-                        item.getProduct().getId().equals(productId)
-                ).findFirst()
-                .orElse(null);
+        var cartItem = cart.getCartItemById(productId);
 
         if (cartItem == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
