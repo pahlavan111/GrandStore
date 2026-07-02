@@ -8,7 +8,6 @@ import org.bpf.grandstore.dto.CartDto;
 import org.bpf.grandstore.dto.CartItemDto;
 import org.bpf.grandstore.dto.UpdateCartRequest;
 import org.bpf.grandstore.entity.Cart;
-import org.bpf.grandstore.entity.CartItem;
 import org.bpf.grandstore.mapper.CartMapper;
 import org.bpf.grandstore.repository.CartRepository;
 import org.bpf.grandstore.repository.ProductRepository;
@@ -93,7 +92,7 @@ class CartController {
             );
         }
 
-        var cartItem = cart.getCartItemById(productId);
+        var cartItem = cart.getCartItemByProductId(productId);
 
         if (cartItem == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
@@ -105,5 +104,24 @@ class CartController {
         cartRepository.save(cart);
 
         return ResponseEntity.ok(cartMapper.toDto(cartItem));
+    }
+
+
+    @DeleteMapping("/{cartId}/items/{productId}")
+    public ResponseEntity<?> deleteItem(
+            @PathVariable UUID cartId,
+            @PathVariable Long productId
+    ) {
+        Cart cart = cartRepository.getCartWithItems(cartId).orElse(null);
+
+        if (cart == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    Map.of("error", "cart not found")
+            );
+        }
+
+        cart.removeItem(productId);
+        cartRepository.save(cart);
+        return ResponseEntity.noContent().build();
     }
 }

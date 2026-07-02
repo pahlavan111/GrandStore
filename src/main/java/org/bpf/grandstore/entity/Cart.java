@@ -34,17 +34,26 @@ public class Cart {
         ).reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    public CartItem getCartItemById(Long ProductId) {
+    public CartItem getCartItemByProductId(Long ProductId) {
         return getCartItems().stream().filter(item ->
                         item.getProduct().getId().equals(ProductId)
                 ).findFirst()
                 .orElse(null);
     }
 
+    public void removeItem(Long ProductId) {
+
+        CartItem item = getCartItemByProductId(ProductId);
+        if (item != null){
+            cartItems.remove(item);
+            item.setCart(null);
+        }
+    }
+
 
     public CartItem addToCart(Product product) {
 
-        var cartItem = getCartItemById(product.getId());
+        var cartItem = getCartItemByProductId(product.getId());
 
         if (cartItem != null) {
             cartItem.setQuantity(cartItem.getQuantity() + 1);
