@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import org.bpf.grandstore.dto.AddItemToCartRequest;
 import org.bpf.grandstore.dto.CartDto;
 import org.bpf.grandstore.dto.CartItemDto;
+import org.bpf.grandstore.dto.UpdateCartRequest;
 import org.bpf.grandstore.entity.Cart;
 import org.bpf.grandstore.entity.CartItem;
 import org.bpf.grandstore.mapper.CartMapper;
@@ -16,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.Map;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -89,5 +91,36 @@ class CartController {
         var cartItemDto = cartMapper.toDto(cartItem);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(cartItemDto);
+    }
+
+    @PutMapping("/{cartId}/items/{productId}")
+    public ResponseEntity<?> updateItem(
+            @PathVariable UUID cartId,
+            @PathVariable Long productId,
+            @Valid @RequestBody UpdateCartRequest request
+    ) {
+
+        var cart = cartRepository.getCartWithItems(cartId).orElse(null);
+        if (cart == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    Map.of("error", "cart not found")
+            );
+        }
+
+        var cartItem = cart.getCartItems().stream().filter(item ->
+                        item.getProduct().getId().equals(productId)
+                ).findFirst()
+                .orElse(null);
+
+        if (cartItem == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    Map.of("error", "Product was not found in the cart")
+            );
+        }
+
+        cartItem.setQuantity(request.getQuantity());
+        cartRepository.save(cart);
+
+        return ResponseEntity.ok(cartMapper.toDto(cartItem));
     }
 }
