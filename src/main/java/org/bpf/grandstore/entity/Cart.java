@@ -44,7 +44,7 @@ public class Cart {
     public void removeItem(Long ProductId) {
 
         CartItem item = getCartItemByProductId(ProductId);
-        if (item != null){
+        if (item != null) {
             cartItems.remove(item);
             item.setCart(null);
         }
@@ -66,6 +66,10 @@ public class Cart {
             cartItems.add(cartItem);
         }
         return cartItem;
+    }
+
+    public void clear(){
+        cartItems.clear();
     }
 
 
