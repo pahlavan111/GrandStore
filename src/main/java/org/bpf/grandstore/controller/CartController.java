@@ -1,6 +1,8 @@
 package org.bpf.grandstore.controller;
 
-import jakarta.transaction.Transactional;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.bpf.grandstore.dto.AddItemToCartRequest;
@@ -15,6 +17,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.UUID;
 
+@Tag(name = "Carts")
 @AllArgsConstructor
 @RestController
 @RequestMapping("/carts")
@@ -41,7 +44,9 @@ class CartController {
 
 
     @PostMapping("/{cartId}/items")
+    @Operation(summary = "Add a product to a cart")
     public ResponseEntity<CartItemDto> addToCart(
+            @Parameter(description = "The id of the cart")
             @PathVariable UUID cartId,
             @Valid @RequestBody AddItemToCartRequest request
     ) {
