@@ -3,6 +3,7 @@ package org.bpf.grandstore.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.bpf.grandstore.exception.ProductNotFoundInCartException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -38,7 +39,7 @@ public class Cart {
         return getCartItems().stream().filter(item ->
                         item.getProduct().getId().equals(ProductId)
                 ).findFirst()
-                .orElse(null);
+                .orElseThrow(ProductNotFoundInCartException::new);
     }
 
     public void removeItem(Long ProductId) {

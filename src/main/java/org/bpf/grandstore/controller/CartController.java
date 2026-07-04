@@ -38,7 +38,7 @@ class CartController {
     public ResponseEntity<CartDto> getCart(
             @PathVariable UUID cartId
     ) {
-        CartDto cartDto = cartService.getCartDto(cartId);
+        CartDto cartDto = cartService.getCart(cartId);
         return ResponseEntity.ok(cartDto);
     }
 
@@ -79,7 +79,7 @@ class CartController {
     public ResponseEntity<Void> clearCart(
             @PathVariable UUID cartId
     ) {
-        cartService.clearCArt(cartId);
+        cartService.clearCart(cartId);
         return ResponseEntity.noContent().build();
     }
 }
