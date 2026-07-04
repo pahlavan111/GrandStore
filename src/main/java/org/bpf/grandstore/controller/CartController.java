@@ -55,7 +55,7 @@ class CartController {
     }
 
     @PutMapping("/{cartId}/items/{productId}")
-    public ResponseEntity<CartItemDto> updateItem(
+    public ResponseEntity<CartItemDto> updateCartItem(
             @PathVariable UUID cartId,
             @PathVariable Long productId,
             @Valid @RequestBody UpdateCartRequest request
@@ -67,7 +67,7 @@ class CartController {
 
 
     @DeleteMapping("/{cartId}/items/{productId}")
-    public ResponseEntity<Void> deleteItem(
+    public ResponseEntity<Void> deleteCartItem(
             @PathVariable UUID cartId,
             @PathVariable Long productId
     ) {
