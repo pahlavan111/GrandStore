@@ -32,4 +32,7 @@ public class CartItem {
                 .multiply(BigDecimal.valueOf(quantity));
     }
 
+    public void changeQuantity(Integer quantity) {
+        setQuantity(quantity);
+    }
 }

@@ -50,7 +50,7 @@ public class CartService {
         var cart = getCartEntity(cartId);
         var cartItem = cart.getCartItemByProductId(productId);
 
-        cartItem.setQuantity(quantity);
+        cartItem.changeQuantity(quantity);
         return cartMapper.toDto(cartItem);
     }
 
