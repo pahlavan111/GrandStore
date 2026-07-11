@@ -3,29 +3,36 @@ package org.bpf.grandstore.service;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
+import lombok.AllArgsConstructor;
+import org.bpf.grandstore.config.JwtConfig;
 import org.bpf.grandstore.entity.User;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 
+@AllArgsConstructor
 @Service
 public class JwtService {
 
-    @Value("${jwt.secret}")
-    private String secret;
+    private final JwtConfig jwtConfig;
 
-    final long tokenExpiration = 86_400 * 1000;
 
-    public String generateToken(User user) {
+    public String generateAccessToken(User user) {
+        return generateToken(user, jwtConfig.getAccessTokenExpiration());
+    }
+
+    public String generateRefreshToken(User user) {
+        return generateToken(user, jwtConfig.getRefreshTokenExpiration());
+    }
+
+    private String generateToken(User user, long expirationTime) {
         return Jwts.builder()
                 .subject(user.getId().toString())
-                .claim("name" , user.getName() + " " + user.getLastName())
+                .claim("name", user.getName() + " " + user.getLastName())
                 .claim("email", user.getEmail())
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + tokenExpiration))
-                .signWith(Keys.hmacShaKeyFor(secret.getBytes()))
+                .expiration(new Date(System.currentTimeMillis() + expirationTime * 1000))
+                .signWith(jwtConfig.getSecretKey())
                 .compact();
     }
 
@@ -39,7 +46,7 @@ public class JwtService {
 
     private Claims getClaims(String token) {
         return Jwts.parser()
-                .verifyWith(Keys.hmacShaKeyFor(secret.getBytes()))
+                .verifyWith(jwtConfig.getSecretKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
