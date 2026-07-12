@@ -5,6 +5,7 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import lombok.AllArgsConstructor;
 import org.bpf.grandstore.config.JwtConfig;
+import org.bpf.grandstore.entity.Role;
 import org.bpf.grandstore.entity.User;
 import org.springframework.stereotype.Service;
 
@@ -55,5 +56,9 @@ public class JwtService {
 
     public Long getUserIdFromToken(String token) {
         return Long.valueOf(getClaims(token).getSubject());
+    }
+
+    public Role getUserRoleFromToken(String token) {
+        return Role.valueOf(getClaims(token).get("role", String.class));
     }
 }

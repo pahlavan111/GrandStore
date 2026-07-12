@@ -2,6 +2,7 @@ package org.bpf.grandstore.config;
 
 
 import lombok.AllArgsConstructor;
+import org.bpf.grandstore.entity.Role;
 import org.bpf.grandstore.filter.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -58,14 +59,23 @@ public class SecurityConfig {
                         con.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(con -> con
+                        .requestMatchers("admin/**").hasRole(Role.ADMIN.name())
                         .requestMatchers(HttpMethod.POST, "auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "users/create").permitAll()
                         .requestMatchers(HttpMethod.POST, "auth/refresh").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(c-> c
-                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))); // تغییر دیفالت 403 به 401
+                .exceptionHandling(c -> {
+                    c.authenticationEntryPoint(  // میگیم اگر کاربر احرازهویت شده نبود 401 بده
+                            new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)
+                    );
+                    c.accessDeniedHandler( // میگیم اگر کاربر احرازهویت شده بود ولی دسترسی نداشت 403 بده
+                            (request,
+                             response,
+                             accessDeniedException) ->
+                                    response.setStatus(HttpStatus.FORBIDDEN.value()));
+                });
 
         return httpSecurity.build();
     }
