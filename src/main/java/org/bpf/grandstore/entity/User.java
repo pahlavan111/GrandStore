@@ -20,19 +20,23 @@ import java.util.Set;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false, name = "id")
+    @Column(name = "id")
     private Long id;
 
-    @Column(nullable = false, name = "name")
+    @Column(name = "name")
     private String name;
 
-    @Column(nullable = false, name = "last_name")
+    @Column(name = "last_name")
     private String lastName;
 
-    @Column(nullable = false, name = "email", unique = true)
+    @Column(name = "role")
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
+    @Column(name = "email", unique = true)
     private String email;
 
-    @Column(nullable = false, name = "password")
+    @Column(name = "password")
     private String password;
 
     @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST,  CascadeType.REMOVE},orphanRemoval = true)

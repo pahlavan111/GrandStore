@@ -6,14 +6,13 @@ import org.bpf.grandstore.dto.ChangePasswordRequest;
 import org.bpf.grandstore.dto.UpdateUserRequest;
 import org.bpf.grandstore.dto.UserDto;
 import org.bpf.grandstore.dto.UserDtoRequest;
+import org.bpf.grandstore.entity.Role;
 import org.bpf.grandstore.entity.User;
 import org.bpf.grandstore.mapper.UserMapper;
 import org.bpf.grandstore.repository.UserRepository;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -69,6 +68,7 @@ public class UserController {
 
         User user = userMapper.toEntity(request);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setRole(Role.USER);
         userRepository.save(user);
 
         UserDto userDto = userMapper.toDto(user);
@@ -104,13 +104,11 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-
     @PostMapping("/{id}/change-password")
     public ResponseEntity<Void> updateUser(
             @PathVariable(name = "id") Long userId,
             @RequestBody ChangePasswordRequest request
     ) {
-
         User user = userRepository.findById(userId).orElse(null);
 
         if (user == null) {
@@ -125,5 +123,4 @@ public class UserController {
         userRepository.save(user);
         return ResponseEntity.noContent().build();
     }
-
 }
