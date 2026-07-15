@@ -18,31 +18,34 @@ public class JwtService {
     private final JwtConfig jwtConfig;
 
 
-    public String generateAccessToken(User user) {
+    public Jwt generateAccessToken(User user) {
         return generateToken(user, jwtConfig.getAccessTokenExpiration());
     }
 
-    public String generateRefreshToken(User user) {
+    public Jwt generateRefreshToken(User user) {
         return generateToken(user, jwtConfig.getRefreshTokenExpiration());
     }
 
-    private String generateToken(User user, long expirationTime) {
-        return Jwts.builder()
+    private Jwt generateToken(User user, long expirationTime) {
+        var claims = Jwts.claims()
                 .subject(user.getId().toString())
-                .claim("name", user.getName() + " " + user.getLastName())
-                .claim("email", user.getEmail())
-                .claim("role", user.getRole())
+                .add("name", user.getName() + " " + user.getLastName())
+                .add("email", user.getEmail())
+                .add("role", user.getRole())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expirationTime * 1000))
-                .signWith(jwtConfig.getSecretKey())
-                .compact();
+                .build();
+
+        return new Jwt(claims, jwtConfig.getSecretKey());
     }
 
-    public boolean validateToken(String token) {
+
+    public Jwt parseToken(String token){
         try {
-            return getClaims(token).getExpiration().after(new Date());
-        } catch (JwtException e) {
-            return false;
+            var claims = getClaims(token);
+            return new Jwt(claims, jwtConfig.getSecretKey());
+        } catch (JwtException e){
+            return null;
         }
     }
 
@@ -52,13 +55,5 @@ public class JwtService {
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
-    }
-
-    public Long getUserIdFromToken(String token) {
-        return Long.valueOf(getClaims(token).getSubject());
-    }
-
-    public Role getUserRoleFromToken(String token) {
-        return Role.valueOf(getClaims(token).get("role", String.class));
     }
 }

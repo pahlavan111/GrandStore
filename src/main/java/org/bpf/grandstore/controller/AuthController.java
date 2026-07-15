@@ -11,6 +11,7 @@ import org.bpf.grandstore.dto.LoginRequestBody;
 import org.bpf.grandstore.dto.UserDto;
 import org.bpf.grandstore.mapper.UserMapper;
 import org.bpf.grandstore.repository.UserRepository;
+import org.bpf.grandstore.service.Jwt;
 import org.bpf.grandstore.service.JwtService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,31 +46,34 @@ public class AuthController {
 
         var user = userRepository.findByEmail(requestBody.getEmail()).orElseThrow();
 
-        var accessToken = jwtService.generateAccessToken(user);
-        var refreshToken = jwtService.generateRefreshToken(user);
-        var cookie = new Cookie("refreshToken" , refreshToken);
+        Jwt accessToken = jwtService.generateAccessToken(user);
+        Jwt refreshToken = jwtService.generateRefreshToken(user);
+
+        var cookie = new Cookie("refreshToken" , refreshToken.toString());
         cookie.setHttpOnly(true);
         cookie.setPath("/auth/refresh");
         cookie.setMaxAge(604800);
         cookie.setSecure(true);
         response.addCookie(cookie);
 
-        return ResponseEntity.ok(new JwtResponse(accessToken));
+        return ResponseEntity.ok(new JwtResponse(accessToken.toString()));
     }
 
     @PostMapping("/refresh")
     public ResponseEntity<JwtResponse> login(
             @CookieValue(value = "refreshToken") String refreshToken
     ) {
-        if(!jwtService.validateToken(refreshToken)){
+
+        Jwt jwt = jwtService.parseToken(refreshToken);
+
+        if(jwt == null || jwt.isExpired()){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        var userId = jwtService.getUserIdFromToken(refreshToken);
+        var userId = jwt.getUserId();
         var user = userRepository.findById(userId).orElseThrow();
-        var accessToken = jwtService.generateAccessToken(user);
-
-        return ResponseEntity.ok(new JwtResponse(accessToken));
+        Jwt accessToken = jwtService.generateAccessToken(user);
+        return ResponseEntity.ok(new JwtResponse(accessToken.toString()));
     }
 
     @GetMapping("/me")
