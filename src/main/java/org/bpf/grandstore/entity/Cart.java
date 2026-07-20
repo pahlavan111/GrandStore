@@ -3,11 +3,11 @@ package org.bpf.grandstore.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.bpf.grandstore.exception.ProductNotFoundInCartException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -35,28 +35,29 @@ public class Cart {
         ).reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    public CartItem getCartItemByProductId(Long ProductId) {
+    public Optional<CartItem> getCartItemByProductId(Long ProductId) {
         return getCartItems().stream().filter(item ->
-                        item.getProduct().getId().equals(ProductId)
-                ).findFirst()
-                .orElseThrow(ProductNotFoundInCartException::new);
+                item.getProduct().getId().equals(ProductId)
+        ).findFirst();
     }
 
     public void removeItem(Long ProductId) {
 
-        CartItem item = getCartItemByProductId(ProductId);
-        if (item != null) {
-            cartItems.remove(item);
-            item.setCart(null);
+        var item = getCartItemByProductId(ProductId);
+        if (item.isPresent()) {
+            cartItems.remove(item.get());
+            item.get().setCart(null);
         }
     }
 
 
     public CartItem addToCart(Product product) {
 
-        var cartItem = getCartItemByProductId(product.getId());
+        var cartItemOptional = getCartItemByProductId(product.getId());
+        CartItem cartItem;
 
-        if (cartItem != null) {
+        if (cartItemOptional.isPresent()) {
+            cartItem = cartItemOptional.get();
             cartItem.setQuantity(cartItem.getQuantity() + 1);
 
         } else {
@@ -69,8 +70,12 @@ public class Cart {
         return cartItem;
     }
 
-    public void clear(){
+    public void clear() {
         cartItems.clear();
+    }
+
+    public boolean isEmpty() {
+        return cartItems.isEmpty();
     }
 
 

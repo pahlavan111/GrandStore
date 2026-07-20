@@ -1,6 +1,5 @@
 package org.bpf.grandstore.service;
 
-import org.springframework.transaction.annotation.Transactional;
 import lombok.AllArgsConstructor;
 import org.bpf.grandstore.dto.CartDto;
 import org.bpf.grandstore.dto.CartItemDto;
@@ -8,10 +7,12 @@ import org.bpf.grandstore.entity.Cart;
 import org.bpf.grandstore.entity.Product;
 import org.bpf.grandstore.exception.CartNotFoundException;
 import org.bpf.grandstore.exception.ProductNotFoundException;
+import org.bpf.grandstore.exception.ProductNotFoundInCartException;
 import org.bpf.grandstore.mapper.CartMapper;
 import org.bpf.grandstore.repository.CartRepository;
 import org.bpf.grandstore.repository.ProductRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -48,8 +49,7 @@ public class CartService {
     public CartItemDto updateItem(UUID cartId, Long productId, Integer quantity) {
 
         var cart = getCartEntity(cartId);
-        var cartItem = cart.getCartItemByProductId(productId);
-
+        var cartItem = cart.getCartItemByProductId(productId).orElseThrow(ProductNotFoundInCartException::new);
         cartItem.changeQuantity(quantity);
         return cartMapper.toDto(cartItem);
     }
