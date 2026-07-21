@@ -16,11 +16,13 @@ import java.util.Set;
 @ToString
 @Builder
 @Entity()
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
+    @EqualsAndHashCode.Include
     private Long id;
 
     @Column(name = "name")
@@ -42,6 +44,7 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST,  CascadeType.REMOVE},orphanRemoval = true)
     @Builder.Default
     @JsonIgnore
+    @ToString.Exclude
     private List<Address> addresses = new ArrayList<>();
 
 
@@ -53,6 +56,7 @@ public class User {
     )
     @Builder.Default
     @JsonIgnore
+    @ToString.Exclude
     private Set<Product> favoriteProducts = new HashSet<>();
 
 //    @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE)

@@ -1,11 +1,8 @@
 package org.bpf.grandstore.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -39,7 +36,7 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.PERSIST)
     private Set<OrderItem> items = new LinkedHashSet<>();
 
-    public static Order fromCart(Cart cart, User customer){
+    public static Order fromCart(Cart cart, User customer) {
         Order order = new Order();
         order.setCustomer(customer);
         order.setStatus(OrderStatus.PENDING);
@@ -57,6 +54,10 @@ public class Order {
         );
 
         return order;
+    }
+
+    public boolean isPlacedBy(User customer){
+        return  this.customer.equals(customer);
     }
 
 }
